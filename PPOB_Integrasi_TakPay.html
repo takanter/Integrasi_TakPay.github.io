@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPOB Ala OVO Achsin Integrasi TakPay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration:none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            /* Warna abu-abu untuk background jika dibuka di layar besar (Desktop) */
+            background-color: #d1d5db; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Container utama: 100% di HP, maksimal 480px di Desktop */
+        .app-container {
+            width: 100%;
+            max-width: 480px; 
+            min-height: 100vh;
+            margin: 0 auto; /* Supaya otomatis ke tengah di desktop */
+            background-color: #f8f9fa;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+        }
+
+        /* --- STICKY HEADER --- */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: transparent;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .top-nav.scrolled {
+            background-color: #F99716;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            /* Trik agar logo benar-benar di tengah (center absolute) */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .promo-btn {
+            background-color: white;
+            color: #F99716;
+            padding: 8px 8px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            margin-left: auto; /* Memastikan tombol terdorong ke kanan */
+        }
+
+        /* Bagian Ungu di bawah Header */
+
+        .header-section {
+            background: linear-gradient(135deg, #F99716 40%, #7B4701 100%);
+            margin-top: -80px; /* Menarik ungu ke atas menutupi nav */
+            padding: 90px 20px 70px 20px;
+            border-radius: 0 0 17px 17px;
+            position: relative;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Efek bayangan lengkung */
+        .header-section::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -10%;
+            width: 250px;
+            height: 150px;
+            background: radial-gradient(circle at 100% 100%, #3D2505) 0%, transparent 60%);
+            border-radius: 50% 50% 0 0;
+            z-index: 1;
+        }
+
+        .balance-info {
+            position: relative;
+            z-index: 2;
+        }
+
+        .ovo-cash-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .ovo-cash-amount {
+            /* clamp() membuat ukuran font responsif dari 24px sampai 32px */
+            font-size: clamp(24px, 8vw, 32px); 
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .ovo-cash-amount span {
+            font-size: clamp(14px, 4vw, 16px);
+            margin-right: 4px;
+            margin-top: 4px;
+        }
+
+        .ovo-points {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .ovo-points span {
+            color: black;
+            margin-left: 6px;
+        }
+
+        /* Card Menu Melayang */
+        .action-menu {
+            background: white;
+            border-radius: 16px;
+            margin: -40px 15px 20px 15px;
+            padding: 10px 10px;
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            flex: 1; /* Fleksibel membagi ruang rata */
+            cursor: pointer;
+        }
+
+        .icon-circle i {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px !important;
+            color: #F99716;
+        }
+
+        .menu-item span {
+            color: #444;
+            /* Font mengecil di layar sempit (seperti iPhone SE) */
+            font-size: clamp(12px, 4vw, 14px); 
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Konten dummy */
+        .dummy-content {
+            padding: 0 15px 20px 15px;
+        }
+        
+        .dummy-banner {
+            width: 100%;
+            height: 120px;
+            background-color: #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #adb5bd;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="top-nav" id="topNav">
+            <div class="logo">GooldzPay</div>
+            <div class="promo-btn">
+              <a href="action://act/message_list">
+                <i class="fa-solid fa-bell"></i> 
+               </a>
+            </div>
+        </div>
+
+        <div class="header-section">
+            <div class="balance-info">
+                <div class="ovo-cash-title">Saldomu Saat Ini</div>
+                <div class="ovo-cash-amount">
+                    {saldo}
+                </div>
+                <div class="ovo-points">
+                    Gooldz Points <span>1200</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-menu">
+            <div class="menu-item">
+                <div class="icon-circle">
+                  <a href="https://jgjk.mobi/act/topup">
+                    <i class="fa-regular fa-square-plus" style="border-radius: 50%;"></i>
+                   </a>
+                </div>
+                <span>Top Up</span>
+            </div>
+            <div class="menu-item">
+             <div class="icon-circle">
+               <a href="https://jgjk.mobi/act/withdraw">
+                    <i class="fa-regular fa-square-minus"></i>
+                   </a>
+                </div>
+                <span>Tarik</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon-circle">
+                  <a href="action://act/balance">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                   </a>
+                </div>
+                <span>History</span>
+            </div>
+        </div>
+        
+ <!======PASTE CODE WIDGET DISINI======>
+        
+                    PASTE CODE DISINI
+
+ <!======PENUTUP CODE WIDGET======>
+
+    </div>
+    <script>
+        const topNav = document.getElementById('topNav');
+
+        // Menggunakan 'window' agar mendeteksi scroll layar browser secara natural
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                topNav.classList.add('scrolled');
+            } else {
+                topNav.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
